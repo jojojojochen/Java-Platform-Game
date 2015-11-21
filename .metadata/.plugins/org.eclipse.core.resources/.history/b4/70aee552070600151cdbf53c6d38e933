@@ -1,0 +1,90 @@
+package gamestate;
+
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+
+import main.GamePanel;
+import entity.Enemy;
+import entity.Hud;
+import entity.Player;
+import entity.enemies.Slugger;
+import tilemap.Background;
+import tilemap.TileMap;
+
+
+public class Level1State extends GameState{
+
+	private TileMap map;
+	private Background bg;
+	private Player player;
+	private ArrayList<Enemy> enemies;
+	private Hud hud;
+	public Level1State(GameStateManager gsm){
+		this.gsm=gsm;
+		init();
+	}
+	public void init() {
+		map=new TileMap(30);
+		map.loadTiles("/Tilesets/icetile.png");
+		map.loadMap("/Maps/level1-1.map");
+		map.setPosition(0,0);
+		map.setTween(0.07);
+		bg=new Background("/bg/menu4.1.jpg",0.001);//Tile map speed move at 10%
+		player=new Player(map);
+		player.setPosition(100,100);
+		
+		enemies=new ArrayList<Enemy>();
+		Slugger s;
+		s=new Slugger(map);
+		s.setPosition(100,100);
+		enemies.add(s);
+		
+		hud = new Hud(player);
+		
+	}
+	public void update() {
+		player.update();
+		map.setPosition(GamePanel.WIDTH/2-player.getx(),GamePanel.HEIGHT/2-player.gety());
+		bg.setPosition(map.getx(),map.gety());
+		
+		//update all enemies
+		for(int i=0; i<enemies.size();i++){
+			enemies.get(i).update();
+		}
+		//attack enemies
+		player.checkAttack(enemies);
+	}
+	public void draw(Graphics2D g) {
+	//draw bg
+		bg.draw(g);
+	//draw tile map
+		map.draw(g);
+	//draw player
+		player.draw(g);
+	//draw enemies
+		for(int i=0;i<enemies.size();i++){
+			enemies.get(i).draw(g);
+		}
+	//draw hud
+		hud.draw(g);
+	}
+	public void keyPressed(int k) {
+		if(k==KeyEvent.VK_LEFT){player.setLeft(true);}
+		if(k==KeyEvent.VK_RIGHT){player.setRight(true);}
+		if(k==KeyEvent.VK_UP){player.setJumping(true);}
+		if(k==KeyEvent.VK_DOWN){player.setDown(true);}
+		if(k==KeyEvent.VK_SPACE){player.setGliding(true);}
+		if(k==KeyEvent.VK_Q){player.setScratching();}
+		if(k==KeyEvent.VK_W){player.setFiring();}
+		if(k==KeyEvent.VK_ESCAPE){gsm.setState(GameStateManager.PAUSESCREEN);}
+	}
+	public void keyReleased(int k) {
+		if(k==KeyEvent.VK_LEFT){player.setLeft(false);}
+		if(k==KeyEvent.VK_RIGHT){player.setRight(false);}
+		if(k==KeyEvent.VK_UP){player.setJumping(false);}
+		if(k==KeyEvent.VK_DOWN){player.setDown(false);}
+		if(k==KeyEvent.VK_SPACE){player.setGliding(false);}
+	}
+
+}

@@ -1,0 +1,85 @@
+package gamestate;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+
+import tilemap.Background;
+
+public class PauseScreen extends GameState {
+	static boolean pause=false;
+	private Background bg;
+	private int currentChoice=0;
+	private String[] options={"Continue","Restart","Quit"};
+	private Color titleColor;
+	private Font titleFont;
+	private Font font;
+	public PauseScreen(GameStateManager gsm){
+		this.gsm=gsm;
+		try{
+			bg=new Background("/bg/bg2.jpeg",1);
+			titleColor = new Color(128,0,0);
+			titleFont = new Font("Century Gothic", Font.PLAIN,28);
+			font = new Font("Century Gothic",Font.PLAIN,10);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
+	public void init() {
+		
+	}
+	public void update() {
+		bg.update();
+	}
+	public void draw(Graphics2D g) {
+		bg.draw(g);	
+		g.setColor(titleColor);
+		g.setFont(titleFont);
+		//g.drawString("PAUSED",80,70);
+		g.setFont(font);
+		for(int i=0; i<options.length; i++){
+			if(i==currentChoice){
+				g.setColor(Color.RED);
+			}
+			else
+			{
+				g.setColor(Color.BLACK);
+			}
+			g.drawString(options[i],145,140+i*15);
+		}
+	}
+	private void select(){
+		if(currentChoice==0){	
+			gsm.setPaused(false);
+			gsm.loadState(GameStateManager.LEVEL1STATE);
+		}
+		if(currentChoice==1){
+			if(this.gsm.previousstate==1 || this.gsm.previousstate==0){gsm.setState(GameStateManager.LEVEL1STATE);}
+			if(this.gsm.previousstate==2){gsm.setState(GameStateManager.LEVEL2STATE);}
+			if(this.gsm.previousstate==3){gsm.setState(GameStateManager.LEVEL3STATE);}
+			if(this.gsm.previousstate==4){gsm.setState(GameStateManager.LEVEL4STATE);}
+		}
+		if(currentChoice==2){
+			System.exit(0);
+		}
+	}
+	public void keyPressed(int k) {
+		if(k==KeyEvent.VK_ENTER){
+			select();
+		}
+		if(k==KeyEvent.VK_UP){
+			currentChoice--;
+			if(currentChoice==-1){currentChoice=options.length-1;}
+		}
+		if(k==KeyEvent.VK_DOWN){
+			currentChoice++;
+			if(currentChoice==options.length){
+				currentChoice=0;
+			}
+		}
+	}
+	public void keyReleased(int k) {
+		
+	}
+}
